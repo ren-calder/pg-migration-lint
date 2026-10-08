@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+  <persistence-unit name="app">
+    <properties>
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost/app?ssl=false&amp;stringtype=unspecified"/> <!-- expect[PGM007] -->
+      <property name="stringtype" value="unspecified"/> <!-- expect[PGM007] -->
+    </properties>
+  </persistence-unit>
+</persistence>

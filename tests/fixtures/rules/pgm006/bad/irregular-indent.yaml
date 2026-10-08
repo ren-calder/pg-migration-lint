@@ -1,0 +1,32 @@
+databaseChangeLog:
+- changeSet:
+      id:  1
+      author:  fixtures
+      preConditions: # expect[PGM006]
+         - onFail: 'MARK_RAN'
+         - not:
+            - tableExists:
+                  tableName:  person
+      changes:
+       - createTable:
+            tableName:  person
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+- changeSet:
+      id:  2
+      author:  fixtures
+      preConditions: # expect[PGM006]
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            tableName: person
+            columnName: city
+      changes:
+       - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: city
+                  type: varchar(30)

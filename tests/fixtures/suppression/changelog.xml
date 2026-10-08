@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog">
+  <changeSet id="1" author="fixtures">
+    <preConditions onFail="MARK_RAN"> <!-- pgmig-lint: ignore[PGM006] full postcondition proven by naming policy -->
+      <not><tableExists tableName="audit_log"/></not>
+    </preConditions>
+    <createTable tableName="audit_log"><column name="id" type="bigint"/></createTable>
+  </changeSet>
+</databaseChangeLog>

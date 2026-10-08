@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/app?ssl=true&stringtype=unspecified # expect[PGM007]
+    hikari:
+      data-source-properties:
+        stringtype: unspecified # expect[PGM007]

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2-unique-legacy-ref
+      author: fixtures
+      preConditions: # expect[PGM006]
+        - onFail: MARK_RAN
+        - not:
+            - indexExists:
+                tableName: account
+                indexName: ux_account_ref
+      changes:
+        - addColumn:
+            tableName: account
+            columns:
+              - column:
+                  name: ref
+                  type: varchar(32)
+  - changeSet:
+      id: 3-backfill
+      author: fixtures
+      changes:
+        - sql:
+            sql: |
+              update account set active = case legacy_active
+                when 'Y' then true
+                when null then null -- expect[PGM005]
+              end
+        - sql:
+            sql: delete from account where id in () # expect[PGM003]

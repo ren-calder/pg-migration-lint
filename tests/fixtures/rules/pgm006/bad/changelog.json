@@ -1,0 +1,17 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "2-unique-legacy-ref",
+        "author": "fixtures",
+        "preConditions": [
+          { "onFail": "MARK_RAN" },
+          { "not": [ { "indexExists": { "tableName": "account", "indexName": "ux_account_ref" } } ] }
+        ],
+        "changes": [
+          { "sql": { "sql": "select * from account where legacy_active in ('Y', null)" } }
+        ]
+      }
+    }
+  ]
+}

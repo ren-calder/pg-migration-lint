@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="2-unique-legacy-ref" author="fixtures">
+    <preConditions onFail="MARK_RAN"> <!-- expect[PGM006] -->
+      <not><indexExists tableName="account" indexName="ux_account_ref"/></not>
+    </preConditions>
+    <addColumn tableName="account"><column name="ref" type="varchar(32)"/></addColumn>
+    <createIndex tableName="account" indexName="ux_account_ref" unique="true">
+      <column name="ref"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="3-add-column-if-missing" author="fixtures">
+    <preConditions onFail="MARK_RAN"> <!-- expect[PGM006] -->
+      <tableExists tableName="account"/>
+      <not>
+        <columnExists tableName="account" columnName="ref"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="account"><column name="ref" type="varchar(32)"/></addColumn>
+  </changeSet>
+
+  <changeSet id="4-audit-table" author="fixtures" dbms="postgresql">
+    <preConditions onError="MARK_RAN"> <!-- expect[PGM006] -->
+      <not><tableExists tableName="audit_log"/></not>
+    </preConditions>
+    <createTable tableName="audit_log"><column name="id" type="bigint"/></createTable>
+  </changeSet>
+
+  <changeSet id="5-backfill" author="fixtures">
+    <sql>update account set active = case legacy_active when 'Y' then true when null then null end</sql> <!-- expect[PGM005] -->
+  </changeSet>
+</databaseChangeLog>

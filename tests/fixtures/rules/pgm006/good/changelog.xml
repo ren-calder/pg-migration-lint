@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog">
+  <preConditions onFail="HALT">
+    <dbms type="postgresql"/>
+  </preConditions>
+
+  <changeSet id="1-guarded-backfill" author="fixtures">
+    <preConditions onFail="HALT" onFailMessage="unexpected legacy values; owner decision required">
+      <sqlCheck expectedResult="0">select count(*) from account where legacy_active is not null and legacy_active not in ('Y','N')</sqlCheck>
+    </preConditions>
+    <sql>update account set active = case when legacy_active = 'Y' then true when legacy_active = 'N' then false when legacy_active is null then null end</sql>
+  </changeSet>
+
+  <!-- Idempotent drop: a missing table is the intended postcondition. -->
+  <changeSet id="2-drop-tmp" author="fixtures">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="legacy_tmp"/>
+    </preConditions>
+    <dropTable tableName="legacy_tmp"/>
+  </changeSet>
+
+  <changeSet id="3-proven-postcondition" author="fixtures">
+    <preConditions onFail="MARK_RAN">
+      <not><indexExists indexName="ux_account_ref"/></not>
+      <sqlCheck expectedResult="0">select count(*) from pg_indexes where indexname = 'ux_account_ref' and indexdef not like 'CREATE UNIQUE INDEX%(ref)'</sqlCheck>
+    </preConditions>
+    <createIndex tableName="account" indexName="ux_account_ref" unique="true"><column name="ref"/></createIndex>
+  </changeSet>
+
+  <changeSet id="4-oracle-only" author="fixtures" dbms="oracle">
+    <preConditions onFail="MARK_RAN">
+      <not><tableExists tableName="x"/></not>
+    </preConditions>
+    <createTable tableName="x"><column name="id" type="number"/></createTable>
+  </changeSet>
+
+  <changeSet id="5-continue" author="fixtures">
+    <preConditions onFail="CONTINUE">
+      <not><tableExists tableName="y"/></not>
+    </preConditions>
+    <createTable tableName="y"><column name="id" type="bigint"/></createTable>
+  </changeSet>
+
+  <changeSet id="6-sql" author="fixtures">
+    <sql dbms="oracle">select * from t where id in ()</sql>
+    <sql><![CDATA[select * from t where a < 1 and status in ('A', 'B')]]></sql>
+    <sql>select * from t where note = '&lt;in ()&gt;'</sql>
+  </changeSet>
+
+  <!--
+  <changeSet id="7-disabled" author="fixtures">
+    <preConditions onFail="MARK_RAN"><not><tableExists tableName="z"/></not></preConditions>
+  </changeSet>
+  -->
+</databaseChangeLog>

@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-guarded-backfill
+      author: fixtures
+      preConditions:
+        - onFail: HALT
+        - sqlCheck:
+            expectedResult: 0
+            sql: select count(*) from account where legacy_active not in ('Y','N')
+      changes:
+        - sql:
+            sql: update account set active = (legacy_active = 'Y')
+  - changeSet:
+      id: 2-oracle-only
+      author: fixtures
+      dbms: oracle
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: x
+  - changeSet:
+      id: 3-drop-tmp
+      author: fixtures
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: legacy_tmp
+      changes:
+        - dropTable:
+            tableName: legacy_tmp

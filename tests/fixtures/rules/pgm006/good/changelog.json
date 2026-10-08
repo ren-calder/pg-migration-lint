@@ -1,0 +1,27 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1-oracle-only",
+        "author": "fixtures",
+        "dbms": "oracle",
+        "preConditions": [
+          { "onFail": "MARK_RAN" },
+          { "not": [ { "tableExists": { "tableName": "x" } } ] }
+        ],
+        "changes": [ { "sql": { "sql": "select * from x where id in ()" } } ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2-halt",
+        "author": "fixtures",
+        "preConditions": [
+          { "onFail": "HALT" },
+          { "sqlCheck": { "expectedResult": "0", "sql": "select count(*) from account where legacy_active not in ('Y','N')" } }
+        ],
+        "changes": [ { "sql": { "dbms": "h2", "sql": "select case x when null then 1 end" } } ]
+      }
+    }
+  ]
+}

@@ -198,6 +198,7 @@ Teams* by Ren Calder. Each finding's "learn more" line names the chapter and
 section that explains the failure and the repair options.
 
 - Leanpub: https://leanpub.com/postgresql-migration-java
+- Amazon (Kindle): https://www.amazon.com/dp/B0HMJ4VXB2
 
 ## Development
 
